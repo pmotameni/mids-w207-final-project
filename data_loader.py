@@ -7,15 +7,15 @@ import numpy as np
 
 
 class DataLoader():
-    def __init__(self, data_path, enable_cache=True) -> None:
-        self.enable_cache = enable_cache
+    def __init__(self, args) -> None:
+        self.args = args
         self.cache = {}
-        self.df = pd.read_csv(data_path)
+        self.df = pd.read_csv(args.data_path)
         # for features we do not need Id and we need to remove SalesPrice
         self.df_X = self.df.drop(['SalePrice', 'Id'], axis=1)
         self.df_y = self.df[['SalePrice']].copy()
 
-    def get_clean_encode_data(self, refresh_cache=False):
+    def get_clean_encoded_data(self, refresh_cache=False):
         ''' This returns clean encoded data 
         It also cache the data to speed up frequent read when cache is 
         enabled
@@ -23,14 +23,17 @@ class DataLoader():
         cache
         '''
         data = None
-        if self.enable_cache:
+        enable_cache = self.args.enable_cache
+        if enable_cache:
             cache = self.cache
             if not 'clean_encode_data' in cache or refresh_cache:
                 data = self.clean_encode_data()
                 cache['clean_encode_data'] = data
             else:
                 data = cache['clean_encode_data']
-        if not self.enable_cache:
+                if self.args.log_level == 'verbose':
+                    print('Read clean encoded data from cache')
+        if not enable_cache:
             data = self.clean_encode_data()
         return data
 
@@ -41,8 +44,9 @@ class DataLoader():
 
     def split_data(self, working_set):
         ''' Split data into test and train sets'''
-        return train_test_split(
+        X_train, X_val, y_train, y_val = train_test_split(
             working_set, self.df_y, test_size=0.10, random_state=1)
+        return X_train.toarray(), X_val.toarray(), y_train, y_val
 
     # Encoding Categorical Features
     def encoding_features(self):
