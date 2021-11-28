@@ -29,10 +29,12 @@ class DataLoader():
             if not 'clean_encode_data' in cache or refresh_cache:
                 data = self.clean_encode_data()
                 cache['clean_encode_data'] = data
+                if self.args.log_level == 'verbose':
+                    print('Cached clean encoded data.')
             else:
                 data = cache['clean_encode_data']
                 if self.args.log_level == 'verbose':
-                    print('Read clean encoded data from cache')
+                    print('Read clean encoded data from cache.')
         if not enable_cache:
             data = self.clean_encode_data()
         return data
