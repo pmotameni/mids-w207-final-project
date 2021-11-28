@@ -7,36 +7,35 @@ import numpy as np
 
 
 class DataLoader():
-    def __init__(self, data_path, enable_cache = True) -> None:
+    def __init__(self, data_path, enable_cache=True) -> None:
         self.enable_cache = enable_cache
-        self.cache ={}
+        self.cache = {}
         self.df = pd.read_csv(data_path)
         # for features we do not need Id and we need to remove SalesPrice
         self.df_X = self.df.drop(['SalePrice', 'Id'], axis=1)
         self.df_y = self.df[['SalePrice']].copy()
-        
 
-    def get_clean_encode_data(self, refresh_cache = False):
+    def get_clean_encode_data(self, refresh_cache=False):
         ''' This returns clean encoded data 
         It also cache the data to speed up frequent read when cache is 
         enabled
         To refresh cache set the refresh_cashe to True to reload data in 
-        cashe
+        cache
         '''
         data = None
         if self.enable_cache:
-            if not self.cache['clean_encode_data'] or refresh_cache:
+            cache = self.cache
+            if not 'clean_encode_data' in cache or refresh_cache:
                 data = self.clean_encode_data()
-                self.cache['clean_encode_data'] = data
+                cache['clean_encode_data'] = data
             else:
-                data = self.cache['clean_encode_data'] 
+                data = cache['clean_encode_data']
         if not self.enable_cache:
             data = self.clean_encode_data()
         return data
-                    
 
     def clean_encode_data(self):
-    
+
         encoded_feaures = self.encoding_features()
         return self.split_data(encoded_feaures)
 
@@ -44,7 +43,7 @@ class DataLoader():
         ''' Split data into test and train sets'''
         return train_test_split(
             working_set, self.df_y, test_size=0.10, random_state=1)
-    
+
     # Encoding Categorical Features
     def encoding_features(self):
         self.build_features()
@@ -65,7 +64,8 @@ class DataLoader():
     def build_features(self):
         df_X = self.df_X
         # we showed that not considering half-bath as full has better revealing factor
-        f_baths = self.get_bath_features_dataset(df_X, consider_half_as_full=False)
+        f_baths = self.get_bath_features_dataset(
+            df_X, consider_half_as_full=False)
         df_X['total_bath'] = f_baths['total_bath']
         # Age of house at sale time, remodlled age at sale time
         df_X['Age'] = df_X['YrSold'] - df_X['YearBuilt']
@@ -75,10 +75,11 @@ class DataLoader():
         # Set half-bath to half of its value
         bath_props = ['BsmtFullBath', 'BsmtHalfBath', 'FullBath', 'HalfBath']
         bath_dataset = x[['BsmtFullBath',
-                            'BsmtHalfBath', 'FullBath', 'HalfBath']].copy()
+                          'BsmtHalfBath', 'FullBath', 'HalfBath']].copy()
         if not consider_half_as_full:
             # Total number of bath = number of full + (number of half/2)
             bath_dataset[['BsmtHalfBath', 'HalfBath']] = bath_dataset[[
                 'BsmtHalfBath', 'HalfBath']].apply(lambda x: x/2, axis=1)
-        bath_dataset['total_bath'] = bath_dataset[bath_props].apply(np.sum, axis=1)
+        bath_dataset['total_bath'] = bath_dataset[bath_props].apply(
+            np.sum, axis=1)
         return bath_dataset
