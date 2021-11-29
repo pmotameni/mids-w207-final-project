@@ -1,4 +1,3 @@
-from typing_extensions import Self
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
