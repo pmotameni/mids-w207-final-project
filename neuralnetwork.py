@@ -1,5 +1,3 @@
-from os import XATTR_CREATE
-import matplotlib.pyplot as plt
 from base_regressor import BaseRegressor
 from keras import backend
 from keras.callbacks import ModelCheckpoint, Callback, EarlyStopping
