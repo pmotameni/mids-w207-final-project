@@ -72,7 +72,6 @@ class NeuralNetworkRegressor(BaseRegressor):
         return [checkpoint_cb, progress_cb, early_stopping_cb]
 
     def fit(self, X, y):
-
         self.X = X
         self.y = y
         validation_data = (
@@ -89,7 +88,6 @@ class NeuralNetworkRegressor(BaseRegressor):
         return self.model.predict(X_test)
 
     def get_mean_squared_error(self):
-        # plt.plot(self.fitHistory.history['root_mean_squared_error'])
         return self.fitHistory.history['root_mean_squared_error']
 
     def get_history_loss(self):
