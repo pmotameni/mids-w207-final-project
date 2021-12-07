@@ -3,6 +3,8 @@ __pycache__/
 .ipynb_checkpoints/
 
 desktop.ini
+# mac
+.DS_Store
 
 # ignore temp csv file
 X_test.csv
