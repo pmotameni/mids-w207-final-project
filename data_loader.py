@@ -14,6 +14,39 @@ class DataLoader():
         self.df_X = self.df.drop(['SalePrice', 'Id'], axis=1)
         self.df_y = self.df[['SalePrice']].copy()
 
+
+    # TODO cache this => PM
+    def get_raw_split_fs(self):
+       '''Return X_train_fs, X_test_fs, y_train_fs, y_test_fs '''
+
+       return train_test_split(
+            self.df_X, self.df_y, test_size=0.10, random_state=1)
+
+    def get_top_corr_feature(self, top_corr, mi_scores, X_filter_fs):
+        features_corr = top_corr.columns.to_list()
+        features_mi = mi_scores.index[mi_scores > 0.1].to_list()
+        k = []
+        k.extend(features_corr)
+        k.extend(features_mi)
+        features_selected = list(set(k)-{"SalePrice"})
+        fs_Corr = X_filter_fs[features_selected].corr(
+        ).reset_index().melt(id_vars="index")
+        return fs_Corr[(fs_Corr['value'] > 0.6) & (fs_Corr['value'] < 1)]
+
+    #encode the categorical data and fill NAs
+    def data_prep_fs(self, x):
+        """
+        Encoding Categorical Features, and fill NA
+
+        """
+        X = x.copy(deep=True)
+        for colname in X.select_dtypes(["object"]):
+            X[colname] = X[colname].fillna("noinfo")
+            X[colname], _ = X[colname].factorize()
+        for colname in X.select_dtypes(["float"]):
+            X[colname] = X[colname].fillna(-999999.0)
+        return X
+
     def get_clean_encoded_data(self, refresh_cache=False):
         ''' This returns clean encoded data 
         It also cache the data to speed up frequent read when cache is 
