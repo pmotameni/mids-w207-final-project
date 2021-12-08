@@ -1,1 +1,15 @@
+.vscode/
+__pycache__/
+.ipynb_checkpoints/
+
+desktop.ini
+# mac
 .DS_Store
+
+# ignore temp csv file
+X_test.csv
+X_train.csv
+y_test.csv
+y_train.csv
+X_train.mtx
+>>>>>>> main
