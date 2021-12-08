@@ -30,8 +30,9 @@ class DataLoader():
         k.extend(features_mi)
         features_selected = list(set(k)-{"SalePrice"})
         fs_Corr = X_filter_fs[features_selected].corr(
-        ).reset_index().melt(id_vars="index")
-        return fs_Corr[(fs_Corr['value'] > 0.6) & (fs_Corr['value'] < 1)]
+            ).reset_index().melt(id_vars="index")
+
+        return features_selected, fs_Corr[(fs_Corr['value'] > 0.6) & (fs_Corr['value'] < 1)]
 
     #encode the categorical data and fill NAs
     def data_prep_fs(self, x):
