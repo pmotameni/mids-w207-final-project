@@ -94,31 +94,6 @@ class DataLoader():
             data = self.clean_encode_data()
         return data
 
-    # TODO fix this to return the scaled data
-    def get_scaled_clean_encoded_data(self, refresh_cache=False):
-        ''' This returns scaled version of clean encoded data 
-        It also cache the data to speed up frequent read when cache is 
-        enabled
-        To refresh cache set the refresh_cashe to True to reload data in 
-        cache
-        '''
-        data = None
-        enable_cache = self.args.enable_cache
-        if enable_cache:
-            cache = self.cache
-            if not 'scaled_clean_encode_data' in cache or refresh_cache:
-                data = self.clean_encode_data()
-                cache['scaled_clean_encode_data'] = data
-                if self.args.log_level == 'verbose':
-                    print('Cached clean encoded data.')
-            else:
-                data = cache['scaled_clean_encode_data']
-                if self.args.log_level == 'verbose':
-                    print('Read clean encoded data from cache.')
-        if not enable_cache:
-            data = self.clean_encode_data()
-        return data
-
     def clean_encode_data(self):
 
         encoded_feaures = self.encoding_features()
@@ -138,14 +113,14 @@ class DataLoader():
     # Encoding Categorical Features
     def encoding_features(self):
         self.build_features()
-        working_set = self.extract_features()
+        working_set = self.extract_features_org()
         index_of_encoded_cols = [working_set.columns.get_loc(col) for col in [
             'MSSubClass', 'MSZoning', 'Utilities', 'Neighborhood',  'KitchenQual']]
         ct = ColumnTransformer(transformers=[(
             'encoder', OneHotEncoder(), index_of_encoded_cols)], remainder='passthrough')
         return ct.fit_transform(working_set)
 
-    def extract_features(self):
+    def extract_features_org(self):
         '''This filters out fetures form the raw data based 
         on analysis we at EDA'''
         list_of_features = ['MSSubClass', 'MSZoning', 'LotArea', 'Utilities',

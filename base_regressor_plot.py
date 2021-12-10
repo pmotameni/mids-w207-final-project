@@ -15,10 +15,7 @@ class BaseRegressorPlot():
   
   @staticmethod
   def plot_learning_curves(ax, regressor, data_loader, scaled_data=False):
-    if scaled_data:
-        X_train, X_val, y_train, y_val = data_loader.get_scaled_clean_encoded_data()
-    else:
-        X_train, X_val, y_train, y_val = data_loader.get_clean_encoded_data()
+    X_train, X_val, y_train, y_val = data_loader.get_clean_encoded_data()
     train_errors, val_errors = [], []
     for m in range(1, len(X_train)):
         regressor.fit(X_train[:m], y_train[:m])
