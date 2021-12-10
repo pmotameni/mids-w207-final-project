@@ -2,16 +2,16 @@ from configurations import args
 from sklearn.metrics import mean_squared_error
 
 class BaseRegressorPlot():  
-
-  
   @staticmethod
-  def plot_predicted_vs_actual(ax, regressor):
+  def plot_predicted_vs_actual(ax, predicted, actual):
     if args.log_level == 'verbose':
-      print('get_predicted_vs_actual')
-    predicted, actual = regressor.get_predicted_vs_actual()
+      print('plot_predicted_vs_actual')
     ax.scatter(predicted, actual)
     ax.set_xlabel("Predicted Sales Price ($)")
     ax.set_ylabel("Sales Price ($)")
+    ax.set_xlim([0, ax.get_xlim()[1]])
+    ax.set_ylim([0, ax.get_ylim()[1]])
+    ax.plot([-1000000, 1000000], [-1000000, 1000000])
   
   @staticmethod
   def plot_learning_curves(ax, regressor, data_loader, scaled_data=False):
@@ -37,21 +37,27 @@ class BaseRegressorPlot():
     ax.set_ylabel("RMSE")
 
   @staticmethod
-  def plot_history_loss(ax, regressor,  scaled_data=True):
-    # if scaled_data:
-    #     X_train, X_val, y_train, y_val = data_loader.get_scaled_clean_encoded_data()
-    # else:
-    #     X_train, X_val, y_train, y_val = data_loader.get_clean_encoded_data()
-    ax.plot(regressor.get_history_loss())
+  def plot_history_loss(ax, regressor,  inlcule_val_loss=False):
+    ax.plot(regressor.get_history_loss(), label='Train Loss')
+    if inlcule_val_loss:
+      ax.plot(regressor.get_val_history_loss(), label='Val Loss')
+    ax.legend()
   
   @staticmethod
-  def plot_rmse(ax, regressor,  scaled_data=True):
-    # if scaled_data:
-    #     X_train, X_val, y_train, y_val = data_loader.get_scaled_clean_encoded_data()
-    # else:
-    #     X_train, X_val, y_train, y_val = data_loader.get_clean_encoded_data()
-    ax.plot(regressor.get_mean_squared_error())
+  def plot_rmse(ax, regressor,  inlcule_val_loss=False):
+    ax.plot(regressor.get_mean_squared_error(), label='Train Error')
+    if inlcule_val_loss:
+      ax.plot(regressor.get_val_mean_squared_error(), label='Val Error')
+    ax.legend()
 
   @staticmethod
   def clean_out_plot(ax):
     ax.set_axis_off()
+  
+  @staticmethod
+  def plot_error_hist(ax, predicted, actual):
+    error = predicted - actual
+    ax.hist(error, bins=50)
+    ax.set_xlabel("Sales Price Prediction Error ($)")
+     
+

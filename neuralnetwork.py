@@ -5,6 +5,18 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Flatten, Input
 from configurations import args
 from pathlib import Path
+import tensorflow as tf
+import keras
+
+# Custom Keras Callback to display training progress
+
+
+class ShowProgress(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        if epoch % 50 == 0:
+            print("", end="\r")
+            print('Training.', end='')
+        print('.', end='')
 
 
 class NetworkLayer():
@@ -66,8 +78,9 @@ class NeuralNetworkRegressor(BaseRegressor):
     def get_callbacks(self):
         checkpoint_cb = ModelCheckpoint(args.model_file,
                                         save_best_only=True)
-        progress_cb = PrintValTrainRatioCallback()
-        early_stopping_cb = EarlyStopping(patience=5,
+        # progress_cb = PrintValTrainRatioCallback()
+        progress_cb = ShowProgress()
+        early_stopping_cb = EarlyStopping(monitor='val_loss', patience=10,
                                           restore_best_weights=True)
         return [checkpoint_cb, progress_cb, early_stopping_cb]
 
@@ -90,16 +103,27 @@ class NeuralNetworkRegressor(BaseRegressor):
     def get_mean_squared_error(self):
         return self.fitHistory.history['root_mean_squared_error']
 
+    def get_val_mean_squared_error(self):
+        return self.fitHistory.history['val_root_mean_squared_error']
+
     def get_history_loss(self):
         return self.fitHistory.history['loss']
 
+    def get_val_history_loss(self):
+        return self.fitHistory.history['val_loss']
+
 
 # this is one nn network, create more and test them
-def create_nn_regressor(X_train,  X_tst, y_tst,  epochs):
+def create_nn_regressor(X_train, X_tst, y_tst,  epochs):
+    '''This creates a Neural Network regressor 
+    Returns:
+        NeuralNetworkRegressor
+    '''
     layers = []
-    layers.append(NetworkLayer(30, 'normal', 'relu',))
-    layers.append(NetworkLayer(10, 'normal', 'relu',))
+    layers.append(NetworkLayer(64, 'normal', 'relu',))
+    layers.append(NetworkLayer(64, 'normal', 'relu',))
     layers.append(NetworkLayer(1, 'normal', 'linear'))
-    metrics = ['RootMeanSquaredError']
-    return NeuralNetworkRegressor(layers, X_train.shape[1],  X_tst, y_tst,
+    metrics = ['RootMeanSquaredError',
+               'MeanAbsoluteError', 'MeanSquaredError']
+    return NeuralNetworkRegressor(layers, len(X_train.keys()),  X_tst, y_tst,
                                   metrics, epochs=epochs)
