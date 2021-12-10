@@ -20,14 +20,19 @@ class DataLoader():
     y_test
 
     '''
-    def __init__(self, args) -> None:
+    def __init__(self, args, should_remove_outliers = True) -> None:
         self.args = args
         self.cache = {}
         self.df = pd.read_csv(args.data_path)
+        if should_remove_outliers:
+            self.remove_outliers()
         # for features we do not need Id and we need to remove SalesPrice
         self.df_X = self.df.drop(['SalePrice', 'Id'], axis=1)
         self.df_y = self.df[['SalePrice']].copy()
         self.set_raw_split()
+
+    def remove_outliers(self):
+        self.df = self.df[self.df['GrLivArea'] < 4000]
 
     def set_raw_split(self):
         self.X_train, self.X_test, self.y_train, self.y_test = \
@@ -181,7 +186,10 @@ class DataLoader():
     @staticmethod
     def split_data_df(working_set, combine_back = False):
         ''' Split data into test and train sets
-
+        parameters:
+            combine_back
+                when True then put back the SalesPrice in to X so can 
+                continue to delete rows as needed post analysis
         working_set is the dataset which only contains the features
         we extracted
         '''
@@ -229,6 +237,7 @@ class DataLoader():
         data = data.dropna()
         print(f'After dropping NA {data.shape}, dropped {before - data.shape[0]}')
         return data
+
     @staticmethod
     def encode_onehot(data, column_name):
         ''' This onhot encode the categorical columns and drop the original column
