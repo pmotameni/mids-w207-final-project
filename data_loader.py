@@ -207,6 +207,7 @@ class DataLoader():
     # Normolize Data (For NN and other SGD models)
     def prep_verify_data_for_nn(self, cat_features, nominal_features):
         ''' Prepare and verify data to be used by Neural Net Regressor
+    
         Retruns:
             X_train, X_test, y_train, y_test
             X_train and X_test are nomalized

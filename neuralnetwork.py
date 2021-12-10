@@ -8,10 +8,9 @@ from pathlib import Path
 import tensorflow as tf
 import keras
 
-# Custom Keras Callback to display training progress
-
 
 class ShowProgress(keras.callbacks.Callback):
+    '''Custom Keras Callback to display training progress'''
     def on_epoch_end(self, epoch, logs):
         if epoch % 50 == 0:
             print("", end="\r")
@@ -113,7 +112,7 @@ class NeuralNetworkRegressor(BaseRegressor):
         return self.fitHistory.history['val_loss']
 
 
-# this is one nn network, create more and test them
+# This is one nn network
 def create_nn_regressor(X_train, X_tst, y_tst,  epochs):
     '''This creates a Neural Network regressor 
     Returns:
