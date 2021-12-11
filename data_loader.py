@@ -28,8 +28,8 @@ class DataLoader():
         if should_remove_outliers:
             self.remove_outliers()
         if post_eda:
-            # for features we do not need Id and we need to remove SalesPrice
-            # The rest of columns dropped here are ar the result of EDA analysis
+                # for features we do not need Id and we need to remove SalesPrice
+                # The rest of columns dropped here are ar the result of EDA analysis
             self.df_X = self.df.drop(
                 ['SalePrice', 'Id', 'MiscFeature', 'Alley', 'Fence', 'FireplaceQu',
                  'LotFrontage', 'GarageType', 'GarageQual', 'GarageFinish',
@@ -123,27 +123,32 @@ class DataLoader():
     # Encoding Categorical Features
 
     def encoding_features(self):
-        # self.build_features()
+        self.build_features()
         working_set = self.extract_features_org()
         index_of_encoded_cols = [working_set.columns.get_loc(col) for col in [
-            'KitchenQual', 'Exterior2nd', 'ExterQual',
-            'Neighborhood', 'HeatingQC', 'Foundation', 'MSSubClass']]
+            'MSSubClass', 'MSZoning', 'Utilities', 'Neighborhood',  'KitchenQual']]
         ct = ColumnTransformer(transformers=[(
             'encoder', OneHotEncoder(), index_of_encoded_cols)], remainder='passthrough')
         return ct.fit_transform(working_set)
 
     def extract_features_org(self):
         '''This filters out fetures form the raw data based 
-        on analysis we did at EDA feature selection'''
-        list_of_features = ['KitchenQual', 'Exterior2nd', 'ExterQual',
-                            'Neighborhood', 'HeatingQC', 'Foundation',
-                            'MSSubClass', 'LotArea', 'TotalBsmtSF',
-                            'YearRemodAdd', 'GarageArea', 'FullBath',
-                            'GarageCars',
-                            'GrLivArea', 'YearBuilt', 'OverallQual',
-                            'Fireplaces', 'TotRmsAbvGrd', '1stFlrSF',
-                            '2ndFlrSF', 'BsmtFinSF1']
+        on analysis we at EDA'''
+        list_of_features = ['MSSubClass', 'MSZoning', 'LotArea', 'Utilities',
+                            'Neighborhood', 'OverallQual', 'Age', 'RemodAge',
+                            'KitchenQual', 'TotalBsmtSF',
+                            'GarageCars', 'MoSold', 'GrLivArea', 'total_bath']
         return self.df_X[list_of_features].copy()
+
+    def build_features(self):
+        df_X = self.df_X
+        # we showed that not considering half-bath as full has better revealing factor
+        f_baths = self.get_bath_features_dataset(
+            df_X, consider_half_as_full=False)
+        df_X['total_bath'] = f_baths['total_bath']
+        # Age of house at sale time, remodlled age at sale time
+        df_X['Age'] = df_X['YrSold'] - df_X['YearBuilt']
+        df_X['RemodAge'] = df_X['YrSold'] - df_X['YearRemodAdd']
 
     def get_bath_features_dataset(self, x, consider_half_as_full):
         # Set half-bath to half of its value
@@ -314,9 +319,6 @@ class DataLoader():
         k.extend(features_corr)
         k.extend(features_mi)
         features_selected = list(set(k)-{"SalePrice"})
-        # fs_Corr = X_filter_fs[features_selected].corr(
-        # ).reset_index().melt(id_vars="index")
-        # return fs_Corr[(fs_Corr['value'] > 0.6) & (fs_Corr['value'] < 1)]
         return features_selected
 
 
