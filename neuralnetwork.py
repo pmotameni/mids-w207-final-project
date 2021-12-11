@@ -12,7 +12,7 @@ import keras
 class ShowProgress(keras.callbacks.Callback):
     '''Custom Keras Callback to display training progress'''
     def on_epoch_end(self, epoch, logs):
-        if epoch % 50 == 0:
+        if epoch % 30 == 0:
             print("", end="\r")
             print('Training.', end='')
         print('.', end='')
