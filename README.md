@@ -68,3 +68,23 @@ Notebook 4: Features and Wrapper Functions
 Notebook 5: PCA and Random Forest on Reduced Dimensions
 
 Notebook 6: Conclusion and Further-work
+
+## These are the supporting modules
+
+* Regressors
+    * base_regressor
+    * decision_tree_regressor
+    * elastic_net_regressor
+    * lasso_regressor
+    * linear_regressor
+    * ridge_regressor
+    * neuralnetwork
+* Helpers
+    * data_loader
+    * base_regressor_plot
+
+
+# Configuration
+
+`ponfigurations.py` contains configurable items like number epochs and log level.
+
