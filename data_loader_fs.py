@@ -27,7 +27,7 @@ class DataLoaderFS():
         if should_remove_outliers:
             self.remove_outliers()
         # for features we do not need Id and we need to remove SalesPrice
-        # self.df_X = self.df.drop(['SalePrice', 'Id'], axis=1)
+        # The rest of columns dropped here are ar the result of EDA analysis
         self.df_X = self.df.drop(
             ['SalePrice', 'Id', 'MiscFeature', 'Alley', 'Fence', 'FireplaceQu',
              'LotFrontage', 'GarageType', 'GarageQual', 'GarageFinish',

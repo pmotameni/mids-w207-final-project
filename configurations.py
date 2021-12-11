@@ -11,8 +11,5 @@ class args():
     # 'linear',
     # 'neuralnet',
     # 'randomforset', 'ridge']
-    list_of_sections_to_skip = ['decisontree', 'elasticnet', 'lasso',
-                                'linear',
-                                'neuralnet',
-                                'randomforset', 'ridge']
+    list_of_sections_to_skip = []
     num_epochs = 1000
