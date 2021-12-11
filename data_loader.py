@@ -20,14 +20,25 @@ class DataLoader():
     y_test
 
     '''
-    def __init__(self, args, should_remove_outliers = True) -> None:
+
+    def __init__(self, args, should_remove_outliers=True, post_eda=True) -> None:
         self.args = args
         self.cache = {}
         self.df = pd.read_csv(args.data_path)
         if should_remove_outliers:
             self.remove_outliers()
-        # for features we do not need Id and we need to remove SalesPrice
-        self.df_X = self.df.drop(['SalePrice', 'Id'], axis=1)
+        if post_eda:
+                # for features we do not need Id and we need to remove SalesPrice
+                # The rest of columns dropped here are ar the result of EDA analysis
+            self.df_X = self.df.drop(
+                ['SalePrice', 'Id', 'MiscFeature', 'Alley', 'Fence', 'FireplaceQu',
+                 'LotFrontage', 'GarageType', 'GarageQual', 'GarageFinish',
+                 'GarageYrBlt', 'GarageCond', 'BsmtFinType2', 'BsmtExposure',
+                 'BsmtQual', 'BsmtCond', 'BsmtFinType1',
+                 'PoolQC'], axis=1)
+        else:
+            self.df_X = self.df.drop(['SalePrice', 'Id'], axis=1)
+
         self.df_y = self.df[['SalePrice']].copy()
         self.set_raw_split()
 
@@ -43,12 +54,9 @@ class DataLoader():
         '''Return X_train, X_test, y_train, y_test '''
         return self.X_train, self.X_test, self.y_train, self.y_test
 
-    # TODO this is redundant remove it
     def get_raw_split_fs(self):
         '''Return X_train, X_test, y_train, y_test '''
         return self.X_train, self.X_test, self.y_train, self.y_test
-
-
 
     def get_top_corr_feature(self, top_corr, mi_scores, X_filter_fs):
         features_corr = top_corr.columns.to_list()
@@ -57,13 +65,10 @@ class DataLoader():
         k.extend(features_corr)
         k.extend(features_mi)
         features_selected = list(set(k)-{"SalePrice"})
-        # fs_Corr = X_filter_fs[features_selected].corr(
-        # ).reset_index().melt(id_vars="index")
-        # return fs_Corr[(fs_Corr['value'] > 0.6) & (fs_Corr['value'] < 1)]
         return features_selected
 
     # encode the categorical data and fill NAs
-    def data_prep(self, x):
+    def data_prep(self, x, fillna_va=True):
         """
         Encoding Categorical Features, and fill NA
 
@@ -72,8 +77,9 @@ class DataLoader():
         for colname in X.select_dtypes(["object"]):
             X[colname] = X[colname].fillna("noinfo")
             X[colname], _ = X[colname].factorize()
-        for colname in X.select_dtypes(["float"]):
-            X[colname] = X[colname].fillna(-999999.0)
+
+        for colname in X.select_dtypes(exclude={"object"}):
+            X[colname] = X[colname].fillna(0)
         return X
 
     def get_clean_encoded_data(self, refresh_cache=False):
@@ -106,7 +112,7 @@ class DataLoader():
 
     def split_data(self, working_set):
         ''' Split data into test and train sets
-        
+
         working_set is the dataset which only contains the features 
         we extracted
         '''
@@ -114,8 +120,8 @@ class DataLoader():
             working_set, self.df_y, test_size=0.10, random_state=1)
         return X_train.toarray(), X_val.toarray(), y_train, y_val
 
-
     # Encoding Categorical Features
+
     def encoding_features(self):
         self.build_features()
         working_set = self.extract_features_org()
@@ -156,10 +162,10 @@ class DataLoader():
         bath_dataset['total_bath'] = bath_dataset[bath_props].apply(
             np.sum, axis=1)
         return bath_dataset
-    
-    ## Dataframe version
 
-    ## this section returns the dataframe version
+    # Dataframe version
+
+    # this section returns the dataframe version
     def extract_features(self, features_list):
         '''This filters out fetures form the raw data based 
             on analysis we did at EDA phase'''
@@ -170,11 +176,10 @@ class DataLoader():
         the column name has been converted to onehot encoding'''
         categorical_values = df[column_name].unique()
         data_to_encode = df.pop(column_name)
-  
+
         for cat_value in categorical_values:
             col_name = column_name+str(cat_value)
-            df[col_name] = (data_to_encode == cat_value)* 1.0
-
+            df[col_name] = (data_to_encode == cat_value) * 1.0
 
     def clean_encode_data_df(self):
         ''' This return the clean splited data
@@ -183,8 +188,9 @@ class DataLoader():
         '''
         encoded_feaures = self.encoding_features()
         return self.split_data_df(encoded_feaures)
+
     @staticmethod
-    def split_data_df(working_set, combine_back = False):
+    def split_data_df(working_set, combine_back=False):
         ''' Split data into test and train sets
         parameters:
             combine_back
@@ -197,7 +203,7 @@ class DataLoader():
         y = working_set.pop("SalePrice")
         X_train, X_test, y_train, y_test = train_test_split(
             working_set, y, test_size=0.20, random_state=1)
-        # If being used for analysis then 
+        # If being used for analysis then
         # combine back the Sales Price to the feature set
         if combine_back:
             X_train["SalePrice"] = y_train
@@ -207,7 +213,7 @@ class DataLoader():
     # Normolize Data (For NN and other SGD models)
     def prep_verify_data_for_nn(self, cat_features, nominal_features):
         ''' Prepare and verify data to be used by Neural Net Regressor
-    
+
         Retruns:
             X_train, X_test, y_train, y_test
             X_train and X_test are nomalized
@@ -220,7 +226,7 @@ class DataLoader():
         X_train, X_test, y_train, y_test = DataLoader.split_data_df(
             df, combine_back=True)
         X_train, X_test = DataLoader.get_normalized(X_train, X_test)
-        return  X_train, X_test, y_train, y_test
+        return X_train, X_test, y_train, y_test
 
     @staticmethod
     def get_normalized(X_train, X_test):
@@ -236,14 +242,15 @@ class DataLoader():
         before = data.shape[0]
         print(f'Before dropping NA {data.shape}')
         data = data.dropna()
-        print(f'After dropping NA {data.shape}, dropped {before - data.shape[0]}')
+        print(
+            f'After dropping NA {data.shape}, dropped {before - data.shape[0]}')
         return data
 
     @staticmethod
     def encode_onehot(data, column_name):
         ''' This onhot encode the categorical columns and drop the original column
-        
-        '''  
+
+        '''
         categorical_values = data[column_name].unique()
         data_to_encode = data.pop(column_name)
 
@@ -267,7 +274,7 @@ class DataLoader():
                         print('unique value:', i, v)
                 is_any_unique_value = True
         return is_any_unique_value
-    
+
     @staticmethod
     def remove_unique_value_of_cat_features(data, categorical_features):
         before = data.shape[0]
@@ -280,7 +287,8 @@ class DataLoader():
                         print('removing:', i, v)
                         remove_list.append(i)
                 data = data[~data[f].isin(remove_list)]
-        print(f'Before dropping NA {data.shape}, dropped {before - data.shape[0]}')
+        print(
+            f'Before dropping NA {data.shape}, dropped {before - data.shape[0]}')
         return data
 
     @staticmethod
@@ -293,6 +301,29 @@ class DataLoader():
                 'Normalization failed! There are' +
                 ' features with a mean and a standard deviation equal to zero ')
         return normalized_data
+
+    def get_top_feature(self, top_corr, mi_scores, X_filter_fs):
+        """[summary]version 525
+
+        Args:
+            top_corr ([type]): [description]
+            mi_scores ([type]): [description]
+            X_filter_fs ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        features_corr = top_corr.columns.to_list()
+        features_mi = mi_scores.index.to_list()
+        k = []
+        k.extend(features_corr)
+        k.extend(features_mi)
+        features_selected = list(set(k)-{"SalePrice"})
+        # fs_Corr = X_filter_fs[features_selected].corr(
+        # ).reset_index().melt(id_vars="index")
+        # return fs_Corr[(fs_Corr['value'] > 0.6) & (fs_Corr['value'] < 1)]
+        return features_selected
+
 
 class DataNormalizer:
     def __init__(self, X_train, X_test) -> None:
