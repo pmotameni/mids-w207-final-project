@@ -77,8 +77,9 @@ Notebook 6: Conclusion and Further-work
     * elastic_net_regressor
     * lasso_regressor
     * linear_regressor
-    * ridge_regressor
     * neuralnetwork
+    * random_forest_regressor
+    * ridge_regressor
 * Helpers
     * data_loader
     * base_regressor_plot
