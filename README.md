@@ -33,6 +33,7 @@ conda install -y -c anaconda seaborn
 conda install -y scikit-learn
 conda install -y jupyter
 conda install -y -c conda-forge ipykernel 
+conda install -y -c anaconda jinja2
 
 
 # Keras
