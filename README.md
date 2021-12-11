@@ -50,3 +50,21 @@ conda install -y -c conda-forge ipykernel
 python -m ipykernel install --user --name <env_nam> --display-name "Python (<env_name>)"
 
 ```
+
+# Modules and Notebooks
+The work is splited into 6 notebooks and there are some supporting modules.
+
+Notebook 1: 
+Project Overview
+* EDA
+* Missing Values
+* Distribution of Nominal and categorical variables
+* Notebook 2: Regression and Hyperparameter Tuning
+
+Notebook 3: Neural Networks
+
+Notebook 4: Features and Wrapper Functions
+
+Notebook 5: PCA and Random Forest on Reduced Dimensions
+
+Notebook 6: Conclusion and Further-work
