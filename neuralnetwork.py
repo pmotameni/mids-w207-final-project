@@ -119,7 +119,7 @@ def create_nn_regressor(X_train, X_tst, y_tst,  epochs):
         NeuralNetworkRegressor
     '''
     layers = []
-    layers.append(NetworkLayer(64, 'normal', 'relu',))
+    layers.append(NetworkLayer(128, 'normal', 'relu',))
     layers.append(NetworkLayer(64, 'normal', 'relu',))
     layers.append(NetworkLayer(1, 'normal', 'linear'))
     metrics = ['RootMeanSquaredError',

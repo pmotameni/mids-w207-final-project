@@ -39,6 +39,8 @@ class BaseRegressorPlot():
     if inlcule_val_loss:
       ax.plot(regressor.get_val_history_loss(), label='Val Loss')
     ax.legend()
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Loss MSE")
   
   @staticmethod
   def plot_rmse(ax, regressor,  inlcule_val_loss=False):
@@ -46,6 +48,8 @@ class BaseRegressorPlot():
     if inlcule_val_loss:
       ax.plot(regressor.get_val_mean_squared_error(), label='Val Error')
     ax.legend()
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("RMSE")
 
   @staticmethod
   def clean_out_plot(ax):
